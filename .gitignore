@@ -1,8 +1,30 @@
 # Compiled class file
 *.class
 
+# Build output
+target/
+
 # Log file
 *.log
+
+# Local Maven/dependency cache
+.m2/
+.mvn/apache-maven-*/
+.mvn/*.tar.gz
+.mvn/*.zip
+
+# Local app data
+data/
+*.mv.db
+*.trace.db
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Secrets
+.env
+application-local.properties
+secrets/*.json
 
 # BlueJ files
 *.ctxt
