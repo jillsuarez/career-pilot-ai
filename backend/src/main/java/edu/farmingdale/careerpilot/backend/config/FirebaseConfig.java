@@ -1,7 +1,6 @@
 package edu.farmingdale.careerpilot.backend.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.NoCredentials;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.firebase.FirebaseApp;
@@ -30,10 +29,10 @@ public class FirebaseConfig {
             if (isBlank(emulatorHost)) {
                 throw new IllegalStateException("FIRESTORE_EMULATOR_HOST is required when USE_FIREBASE_EMULATOR is true.");
             }
-            return FirestoreOptions.getDefaultInstance().toBuilder()
+            // setEmulatorHost configures the emulator's plaintext transport and credentials.
+            return FirestoreOptions.newBuilder()
                     .setProjectId(projectId)
                     .setEmulatorHost(emulatorHost)
-                    .setCredentials(NoCredentials.getInstance())
                     .build()
                     .getService();
         }
