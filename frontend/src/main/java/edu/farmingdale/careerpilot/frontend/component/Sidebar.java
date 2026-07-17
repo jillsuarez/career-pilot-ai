@@ -1,6 +1,7 @@
 package edu.farmingdale.careerpilot.frontend.component;
 
 import edu.farmingdale.careerpilot.frontend.navigation.Route;
+import javafx.util.Duration;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -9,7 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-
+import javafx.scene.control.Tooltip;
 public class Sidebar extends VBox {
 
     private static final String SELECTED_STYLE_CLASS = "selected";
@@ -42,6 +43,11 @@ public class Sidebar extends VBox {
 
         logoutButton.getStyleClass().add("logout-button");
         logoutButton.setMaxWidth(Double.MAX_VALUE);
+
+        Tooltip logoutTooltip = new Tooltip("Sign out of Career Pilot AI.");
+        logoutTooltip.setShowDelay(Duration.millis(200));
+        logoutButton.setTooltip(logoutTooltip);
+
         logoutButton.setOnAction(event -> logoutHandler.run());
 
         getChildren().addAll(spacer, userEmailLabel, logoutButton);
@@ -73,9 +79,22 @@ public class Sidebar extends VBox {
 
     private Button createRouteButton(Route route) {
         Button button = new Button(route.getLabel());
+
+        Tooltip tooltip = new Tooltip(getRouteTooltip(route));
+        tooltip.setShowDelay(Duration.millis(200));
+        button.setTooltip(tooltip);
+
         button.getStyleClass().add("nav-button");
         button.setMaxWidth(Double.MAX_VALUE);
         button.setOnAction(event -> navigationHandler.accept(route));
         return button;
     }
+    private String getRouteTooltip(Route route) {
+        return switch (route) {
+            case DASHBOARD -> "View your dashboard and quick actions.";
+            case PROFILE -> "Edit your resume profile.";
+            case GENERATE -> "Generate a resume or cover letter.";
+            case DOCUMENTS -> "View your saved documents.";
+        };
+}
 }

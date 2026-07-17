@@ -2,6 +2,8 @@ package edu.farmingdale.careerpilot.frontend.view;
 
 import edu.farmingdale.careerpilot.frontend.ApiClient;
 import edu.farmingdale.careerpilot.frontend.model.GenerateRequest;
+import javafx.scene.control.Tooltip;
+import javafx.util.Duration;
 import edu.farmingdale.careerpilot.frontend.model.GeneratedDocument;
 import edu.farmingdale.careerpilot.frontend.model.GenerationResponse;
 import edu.farmingdale.careerpilot.frontend.service.UiTaskRunner;
@@ -30,7 +32,10 @@ public class GenerateView extends PageView {
         TextField companyField = new TextField();
         TextField jobTitleField = new TextField();
         TextArea jobDescriptionArea = createTextArea();
-        outputArea.setPromptText("Generated text will appear here. You can edit it before saving.");
+        outputArea.setPromptText(
+                "Your generated resume or cover letter will appear here.\n\n" +
+                        "You can review and edit it before saving."
+        );
 
         GridPane form = new GridPane();
         form.setHgap(10);
@@ -40,12 +45,25 @@ public class GenerateView extends PageView {
         addFormRow(form, 2, "Job description", jobDescriptionArea);
 
         Button resumeButton = new Button("Generate Resume");
-        resumeButton.setOnAction(event -> generateDocument("resume", companyField, jobTitleField, jobDescriptionArea));
+        Tooltip resumeTooltip = new Tooltip("Generate a resume using the job information entered above.");
+        resumeTooltip.setShowDelay(Duration.millis(200));
+        resumeButton.setTooltip(resumeTooltip);
+        resumeButton.setOnAction(
+                event -> generateDocument("resume", companyField, jobTitleField, jobDescriptionArea)
+        );
 
         Button coverLetterButton = new Button("Generate Cover Letter");
-        coverLetterButton.setOnAction(event -> generateDocument("cover letter", companyField, jobTitleField, jobDescriptionArea));
+        Tooltip coverLetterTooltip = new Tooltip("Generate a cover letter using the job information entered above.");
+        coverLetterTooltip.setShowDelay(Duration.millis(200));
+        coverLetterButton.setTooltip(coverLetterTooltip);
+        coverLetterButton.setOnAction(
+                event -> generateDocument("cover letter", companyField, jobTitleField, jobDescriptionArea)
+        );
 
         Button saveButton = new Button("Save Edited Output");
+        Tooltip saveTooltip = new Tooltip("Save the generated document after reviewing or editing it.");
+        saveTooltip.setShowDelay(Duration.millis(200));
+        saveButton.setTooltip(saveTooltip);
         saveButton.setOnAction(event -> saveGeneratedOutput());
 
         getChildren().addAll(

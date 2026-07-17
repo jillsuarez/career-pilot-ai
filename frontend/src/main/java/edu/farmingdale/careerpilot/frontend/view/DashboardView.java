@@ -5,6 +5,8 @@ import edu.farmingdale.careerpilot.frontend.navigation.Route;
 import edu.farmingdale.careerpilot.frontend.service.UiTaskRunner;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
+import javafx.scene.control.Tooltip;
+import javafx.util.Duration;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
@@ -44,7 +46,26 @@ public class DashboardView extends PageView {
         Button profileButton = actionButton("Update resume profile", Route.PROFILE, navigationHandler);
         Button generateButton = actionButton("Generate a document", Route.GENERATE, navigationHandler);
         Button documentsButton = actionButton("View saved documents", Route.DOCUMENTS, navigationHandler);
-        HBox quickActions = new HBox(10, profileButton, generateButton, documentsButton);
+
+        profileButton.setTooltip(createTooltip("Open and edit your resume profile."));
+        generateButton.setTooltip(createTooltip("Create a resume or cover letter."));
+        documentsButton.setTooltip(createTooltip("Open your saved documents."));
+
+        Button refreshButton = new Button("Refresh document count");
+        refreshButton.getStyleClass().add("secondary-button");
+        refreshButton.setTooltip(createTooltip("Update the number of saved documents."));
+        refreshButton.setOnAction(
+                event -> loadDocumentCount(apiClient, taskRunner, documentValue, refreshButton)
+        );
+
+        HBox quickActions = new HBox(
+                10,
+                profileButton,
+                generateButton,
+                documentsButton,
+                refreshButton
+        );
+
         quickActions.getStyleClass().add("quick-actions");
 
         Label recentTitle = sectionTitle("Recent applications");
@@ -57,20 +78,10 @@ public class DashboardView extends PageView {
         emptyDescription.setWrapText(true);
         emptyState.getChildren().addAll(emptyHeading, emptyDescription);
 
-        Button refreshButton = new Button("Refresh document count");
-        refreshButton.getStyleClass().add("secondary-button");
-        refreshButton.setOnAction(event -> loadDocumentCount(apiClient, taskRunner, documentValue, refreshButton));
-
-        Region space = new Region();
-        HBox.setHgrow(space, Priority.ALWAYS);
-        HBox refreshRow = new HBox(space, refreshButton);
-        refreshRow.setPadding(new Insets(4, 0, 0, 0));
-
         getChildren().addAll(
                 welcome,
                 introduction,
                 metrics,
-                refreshRow,
                 quickActionsTitle,
                 quickActions,
                 recentTitle,
@@ -132,6 +143,11 @@ public class DashboardView extends PageView {
                     refreshButton.setDisable(false);
                 }
         );
+    }
+    private Tooltip createTooltip(String text) {
+        Tooltip tooltip = new Tooltip(text);
+        tooltip.setShowDelay(Duration.millis(200));
+        return tooltip;
     }
 
     private String displayName(String email) {

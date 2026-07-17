@@ -4,6 +4,8 @@ import edu.farmingdale.careerpilot.frontend.ApiClient;
 import edu.farmingdale.careerpilot.frontend.model.ResumeProfile;
 import edu.farmingdale.careerpilot.frontend.service.UiTaskRunner;
 import javafx.scene.Node;
+import javafx.scene.control.Tooltip;
+import javafx.util.Duration;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -34,6 +36,11 @@ public class ProfileView extends PageView {
         addFormRow(form, 5, "Experience", experienceArea);
 
         Button saveButton = new Button("Save Profile");
+
+        Tooltip saveTooltip = new Tooltip("Save your resume profile information.");
+        saveTooltip.setShowDelay(Duration.millis(200));
+        saveButton.setTooltip(saveTooltip);
+
         saveButton.setOnAction(event -> {
             if (isBlank(fullNameField.getText()) || isBlank(educationArea.getText()) || isBlank(skillsArea.getText())) {
                 taskRunner.setStatus("Full name, education, and skills are required.");
