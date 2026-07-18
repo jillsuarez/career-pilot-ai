@@ -28,7 +28,7 @@ public class AppCoordinator {
         shell.setUserEmail(email);
         shell.setOnLogout(this::showLogin);
 
-        UiTaskRunner taskRunner = new UiTaskRunner(shell::setStatus);
+        UiTaskRunner taskRunner = new UiTaskRunner(shell::setStatus, shell::showError);
         AppNavigator navigator = new AppNavigator(shell, apiClient, taskRunner, email);
         shell.setOnNavigate(navigator::navigate);
 
