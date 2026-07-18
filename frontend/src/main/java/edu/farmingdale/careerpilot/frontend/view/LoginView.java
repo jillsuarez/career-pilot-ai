@@ -11,6 +11,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 public class LoginView extends BorderPane {
@@ -19,17 +21,29 @@ public class LoginView extends BorderPane {
         LoginValidator loginValidator = new LoginValidator();
         getStyleClass().add("login-screen");
 
-        VBox card = new VBox(12);
-        card.getStyleClass().add("login-card");
-        card.setMaxWidth(400);
-
+        VBox showcase = new VBox(18);
+        showcase.getStyleClass().add("login-showcase");
         Label brand = new Label("Career Pilot AI");
         brand.getStyleClass().add("login-brand");
+        Label headline = new Label("Build sharper career documents from one focused workspace.");
+        headline.getStyleClass().add("login-showcase-title");
+        headline.setWrapText(true);
+        Label subhead = new Label("Profile memory, job brief generation, and saved drafts are organized like a study deck for your next application.");
+        subhead.getStyleClass().add("login-showcase-copy");
+        subhead.setWrapText(true);
 
-        Label heading = new Label("Welcome back");
+        HBox signalRow = new HBox(10, signalCard("Profile", "Source"), signalCard("AI", "Drafts"), signalCard("Vault", "Saved"));
+        signalRow.getStyleClass().add("login-signal-row");
+        showcase.getChildren().addAll(brand, headline, subhead, signalRow);
+
+        VBox card = new VBox(14);
+        card.getStyleClass().add("login-card");
+        card.setMaxWidth(390);
+
+        Label heading = new Label("Sign in");
         heading.getStyleClass().add("login-heading");
 
-        Label description = new Label("Sign in to manage your job search.");
+        Label description = new Label("Use demo credentials to enter the workspace.");
         description.getStyleClass().add("muted-label");
 
         TextField emailField = new TextField();
@@ -57,7 +71,7 @@ public class LoginView extends BorderPane {
         errorLabel.visibleProperty().bind(Bindings.isNotEmpty(errorLabel.textProperty()));
         errorLabel.managedProperty().bind(errorLabel.visibleProperty());
 
-        Button loginButton = new Button("Sign in");
+        Button loginButton = new Button("Enter Workspace");
         loginButton.getStyleClass().add("primary-button");
         loginButton.setMaxWidth(Double.MAX_VALUE);
         loginButton.setDefaultButton(true);
@@ -79,12 +93,11 @@ public class LoginView extends BorderPane {
             onAuthenticated.accept(email);
         });
 
-        Label demoNotice = new Label("Demo mode: use any valid email and a password with at least 6 characters.");
+        Label demoNotice = new Label("Demo mode accepts any valid email and a password with at least 6 characters.");
         demoNotice.getStyleClass().add("demo-notice");
         demoNotice.setWrapText(true);
 
         card.getChildren().addAll(
-                brand,
                 heading,
                 description,
                 fieldLabel("Email"),
@@ -98,8 +111,21 @@ public class LoginView extends BorderPane {
                 demoNotice
         );
 
-        setCenter(card);
-        BorderPane.setAlignment(card, Pos.CENTER);
+        HBox layout = new HBox(26, showcase, card);
+        layout.getStyleClass().add("login-layout");
+        layout.setAlignment(Pos.CENTER);
+        HBox.setHgrow(showcase, Priority.ALWAYS);
+        setCenter(layout);
+    }
+
+    private VBox signalCard(String value, String label) {
+        Label valueLabel = new Label(value);
+        valueLabel.getStyleClass().add("login-signal-value");
+        Label labelText = new Label(label);
+        labelText.getStyleClass().add("login-signal-label");
+        VBox card = new VBox(4, valueLabel, labelText);
+        card.getStyleClass().add("login-signal-card");
+        return card;
     }
 
     private Label fieldLabel(String text) {
@@ -107,5 +133,4 @@ public class LoginView extends BorderPane {
         label.getStyleClass().add("field-label");
         return label;
     }
-
 }

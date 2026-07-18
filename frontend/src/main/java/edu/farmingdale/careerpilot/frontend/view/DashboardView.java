@@ -1,17 +1,21 @@
 package edu.farmingdale.careerpilot.frontend.view;
 
 import edu.farmingdale.careerpilot.frontend.ApiClient;
+import edu.farmingdale.careerpilot.frontend.model.ResumeProfile;
 import edu.farmingdale.careerpilot.frontend.navigation.Route;
 import edu.farmingdale.careerpilot.frontend.service.UiTaskRunner;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 public class DashboardView extends PageView {
 
@@ -26,112 +30,269 @@ public class DashboardView extends PageView {
         Label welcome = new Label("Welcome back, " + displayName(userEmail));
         welcome.getStyleClass().add("dashboard-welcome");
 
-        Label introduction = new Label("Here is an overview of your job-search workspace.");
+        Label introduction = new Label("Build a polished career packet from your profile, job brief, and saved AI drafts.");
         introduction.getStyleClass().add("muted-label");
+        introduction.setWrapText(true);
 
-        Label documentValue = new Label("—");
+        Label profileName = new Label("Loading profile...");
+        profileName.getStyleClass().add("hero-profile-name");
+        Label profileContact = new Label("Checking saved resume profile.");
+        profileContact.getStyleClass().add("muted-label");
+        profileContact.setWrapText(true);
+        Label profileDetails = new Label(" ");
+        profileDetails.getStyleClass().add("profile-snapshot-detail");
+        profileDetails.setWrapText(true);
+
+        VBox profileSnapshot = new VBox(
+                12,
+                pill("Profile signal"),
+                profileName,
+                profileContact,
+                profileDetails,
+                actionButton("Open Resume Profile", Route.PROFILE, navigationHandler, true)
+        );
+        profileSnapshot.getStyleClass().addAll("surface-panel", "dashboard-hero-panel");
+        HBox.setHgrow(profileSnapshot, Priority.ALWAYS);
+
+        Label documentValue = new Label("Loading...");
         documentValue.getStyleClass().add("metric-value");
-        FlowPane metrics = new FlowPane(14, 14);
-        metrics.getStyleClass().add("metric-grid");
-        metrics.getChildren().addAll(
-                metricCard("Applications", "—", "Tracker integration pending"),
-                metricCard("Interviews", "—", "Tracker integration pending"),
-                metricCard("Saved documents", documentValue, "Available from your workspace"),
-                metricCard("Resume profile", "—", "Complete your profile to get started")
-        );
 
-        Label quickActionsTitle = sectionTitle("Quick actions");
-        Button profileButton = actionButton("Update resume profile", Route.PROFILE, navigationHandler);
-        Button generateButton = actionButton("Generate a document", Route.GENERATE, navigationHandler);
-        Button documentsButton = actionButton("View saved documents", Route.DOCUMENTS, navigationHandler);
-        HBox quickActions = new HBox(10, profileButton, generateButton, documentsButton);
-        quickActions.getStyleClass().add("quick-actions");
+        VBox documentPulse = new VBox(8, pill("Saved work"), documentValue, muted("Resumes and cover letters ready to revisit."));
+        documentPulse.getStyleClass().addAll("surface-panel", "document-pulse");
 
-        Label recentTitle = sectionTitle("Recent applications");
-        VBox emptyState = new VBox(6);
-        emptyState.getStyleClass().add("empty-state");
-        Label emptyHeading = new Label("No applications to display yet");
-        emptyHeading.getStyleClass().add("empty-state-heading");
-        Label emptyDescription = new Label("Applications will appear here when the tracker module is connected.");
-        emptyDescription.getStyleClass().add("muted-label");
-        emptyDescription.setWrapText(true);
-        emptyState.getChildren().addAll(emptyHeading, emptyDescription);
+        ProgressIndicator refreshIndicator = new ProgressIndicator();
+        refreshIndicator.getStyleClass().add("small-progress");
+        refreshIndicator.setMaxSize(18, 18);
+        refreshIndicator.setVisible(false);
+        refreshIndicator.setManaged(false);
 
-        Button refreshButton = new Button("Refresh document count");
+        Button refreshButton = new Button("Refresh");
         refreshButton.getStyleClass().add("secondary-button");
-        refreshButton.setOnAction(event -> loadDocumentCount(apiClient, taskRunner, documentValue, refreshButton));
+        refreshButton.setTooltip(createTooltip("Reload profile and saved document information."));
+        refreshButton.setOnAction(event -> loadDashboardData(
+                apiClient,
+                taskRunner,
+                profileName,
+                profileContact,
+                profileDetails,
+                documentValue,
+                refreshButton,
+                refreshIndicator
+        ));
 
-        Region space = new Region();
-        HBox.setHgrow(space, Priority.ALWAYS);
-        HBox refreshRow = new HBox(space, refreshButton);
-        refreshRow.setPadding(new Insets(4, 0, 0, 0));
+        HBox commandStrip = new HBox(18, profileSnapshot, documentPulse);
+        commandStrip.getStyleClass().add("dashboard-command-strip");
 
-        getChildren().addAll(
-                welcome,
-                introduction,
-                metrics,
-                refreshRow,
-                quickActionsTitle,
-                quickActions,
-                recentTitle,
-                emptyState
+        VBox resumeTile = launchTile(
+                "Resume Builder",
+                "Generate Resume",
+                "Translate your profile into a role-specific resume draft.",
+                Route.GENERATE,
+                navigationHandler
+        );
+        VBox coverLetterTile = launchTile(
+                "Cover Letter Lab",
+                "Generate Cover Letter",
+                "Shape a concise letter around the company and job brief.",
+                Route.GENERATE,
+                navigationHandler
+        );
+        VBox documentsTile = launchTile(
+                "Document Vault",
+                "Saved Documents",
+                "Open the collection of generated drafts and saved edits.",
+                Route.DOCUMENTS,
+                navigationHandler
+        );
+
+        HBox launchPad = new HBox(14, resumeTile, coverLetterTile, documentsTile);
+        launchPad.getStyleClass().add("launch-pad");
+
+        HBox refreshRow = new HBox(10, refreshButton, refreshIndicator);
+        refreshRow.getStyleClass().add("quick-actions");
+
+        getChildren().addAll(welcome, introduction, commandStrip, launchPad, refreshRow);
+        loadDashboardData(
+                apiClient,
+                taskRunner,
+                profileName,
+                profileContact,
+                profileDetails,
+                documentValue,
+                refreshButton,
+                refreshIndicator
         );
     }
 
-    private VBox metricCard(String title, String value, String description) {
-        Label valueLabel = new Label(value);
-        valueLabel.getStyleClass().add("metric-value");
-        return metricCard(title, valueLabel, description);
-    }
-
-    private VBox metricCard(String title, Label valueLabel, String description) {
-        VBox card = new VBox(6);
-        card.getStyleClass().add("metric-card");
-        card.setPrefWidth(205);
-
+    private VBox launchTile(
+            String eyebrow,
+            String title,
+            String description,
+            Route route,
+            Consumer<Route> navigationHandler
+    ) {
+        Label eyebrowLabel = pill(eyebrow);
         Label titleLabel = new Label(title);
-        titleLabel.getStyleClass().add("metric-title");
-        Label descriptionLabel = new Label(description);
-        descriptionLabel.getStyleClass().add("metric-description");
-        descriptionLabel.setWrapText(true);
-        card.getChildren().addAll(titleLabel, valueLabel, descriptionLabel);
-        return card;
+        titleLabel.getStyleClass().add("launch-title");
+        titleLabel.setWrapText(true);
+        Label descriptionLabel = muted(description);
+        Button button = actionButton("Open", route, navigationHandler, false);
+
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        VBox tile = new VBox(10, eyebrowLabel, titleLabel, descriptionLabel, spacer, button);
+        tile.getStyleClass().addAll("surface-panel", "launch-tile");
+        HBox.setHgrow(tile, Priority.ALWAYS);
+        return tile;
     }
 
-    private Button actionButton(String label, Route route, Consumer<Route> navigationHandler) {
+    private Button actionButton(String label, Route route, Consumer<Route> navigationHandler, boolean primary) {
         Button button = new Button(label);
-        button.getStyleClass().add("secondary-button");
+        button.getStyleClass().add(primary ? "primary-button" : "secondary-button");
+        button.setMaxWidth(Double.MAX_VALUE);
         button.setOnAction(event -> navigationHandler.accept(route));
         return button;
     }
 
-    private Label sectionTitle(String text) {
+    private Label pill(String text) {
         Label label = new Label(text);
-        label.getStyleClass().add("section-title");
+        label.getStyleClass().add("surface-pill");
         return label;
     }
 
-    private void loadDocumentCount(
+    private Label muted(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("muted-label");
+        label.setWrapText(true);
+        return label;
+    }
+
+    private void loadDashboardData(
             ApiClient apiClient,
             UiTaskRunner taskRunner,
+            Label profileName,
+            Label profileContact,
+            Label profileDetails,
             Label documentValue,
-            Button refreshButton
+            Button refreshButton,
+            ProgressIndicator refreshIndicator
     ) {
         refreshButton.setDisable(true);
-        documentValue.setText("…");
-        taskRunner.setStatus("Loading saved documents...");
+        refreshIndicator.setVisible(true);
+        refreshIndicator.setManaged(true);
+        profileName.setText("Loading profile...");
+        profileContact.setText("Checking saved resume profile.");
+        profileDetails.setText(" ");
+        documentValue.setText("Loading...");
+        taskRunner.setStatus("Refreshing dashboard...");
+        AtomicInteger pendingRequests = new AtomicInteger(2);
+
+        taskRunner.run(
+                apiClient::getResumeProfile,
+                profile -> {
+                    updateProfileCard(profile, profileName, profileContact, profileDetails);
+                    finishDashboardRefresh(refreshButton, refreshIndicator, pendingRequests);
+                    taskRunner.setStatus("Dashboard profile loaded.");
+                },
+                () -> {
+                    profileName.setText("Profile unavailable");
+                    profileContact.setText("Check that the backend is running.");
+                    profileDetails.setText(" ");
+                    finishDashboardRefresh(refreshButton, refreshIndicator, pendingRequests);
+                }
+        );
+
         taskRunner.run(
                 () -> apiClient.getDocuments().size(),
                 count -> {
-                    documentValue.setText(String.valueOf(count));
-                    refreshButton.setDisable(false);
-                    taskRunner.setStatus("Dashboard updated.");
+                    documentValue.setText(count + (count == 1 ? " document" : " documents"));
+                    finishDashboardRefresh(refreshButton, refreshIndicator, pendingRequests);
+                    taskRunner.setStatus("Dashboard documents loaded.");
                 },
                 () -> {
-                    documentValue.setText("—");
-                    refreshButton.setDisable(false);
+                    documentValue.setText("Documents unavailable");
+                    finishDashboardRefresh(refreshButton, refreshIndicator, pendingRequests);
                 }
         );
+    }
+
+    private void updateProfileCard(
+            ResumeProfile profile,
+            Label profileName,
+            Label profileContact,
+            Label profileDetails
+    ) {
+        if (profile == null || isBlank(profile.getFullName())) {
+            profileName.setText("Profile not started");
+            profileContact.setText("Add your name, education, and skills before generating documents.");
+            profileDetails.setText(" ");
+            return;
+        }
+
+        profileName.setText(profile.getFullName());
+        profileContact.setText(joinNonBlank(profile.getEmail(), profile.getPhone(), "No contact details saved"));
+        profileDetails.setText(summaryLine(profile));
+    }
+
+    private String summaryLine(ResumeProfile profile) {
+        String skills = shortValue(profile.getSkills(), 92);
+        String education = shortValue(profile.getEducation(), 92);
+        if (!isBlank(skills) && !isBlank(education)) {
+            return "Skills: " + skills + "\nEducation: " + education;
+        }
+        if (!isBlank(skills)) {
+            return "Skills: " + skills;
+        }
+        if (!isBlank(education)) {
+            return "Education: " + education;
+        }
+        return "Add education and skills to complete your profile.";
+    }
+
+    private String joinNonBlank(String first, String second, String fallback) {
+        boolean hasFirst = !isBlank(first);
+        boolean hasSecond = !isBlank(second);
+        if (hasFirst && hasSecond) {
+            return first.trim() + " | " + second.trim();
+        }
+        if (hasFirst) {
+            return first.trim();
+        }
+        if (hasSecond) {
+            return second.trim();
+        }
+        return fallback;
+    }
+
+    private String shortValue(String value, int maxLength) {
+        if (isBlank(value)) {
+            return "";
+        }
+        String normalized = value.trim().replaceAll("\s+", " ");
+        if (normalized.length() <= maxLength) {
+            return normalized;
+        }
+        return normalized.substring(0, maxLength - 3) + "...";
+    }
+
+    private void finishDashboardRefresh(
+            Button refreshButton,
+            ProgressIndicator refreshIndicator,
+            AtomicInteger pendingRequests
+    ) {
+        if (pendingRequests.decrementAndGet() > 0) {
+            return;
+        }
+        refreshButton.setDisable(false);
+        refreshIndicator.setVisible(false);
+        refreshIndicator.setManaged(false);
+    }
+
+    private Tooltip createTooltip(String text) {
+        Tooltip tooltip = new Tooltip(text);
+        tooltip.setShowDelay(Duration.millis(200));
+        return tooltip;
     }
 
     private String displayName(String email) {
