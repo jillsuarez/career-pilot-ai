@@ -10,15 +10,15 @@ public class CareerPilotApp extends Application {
     @Override
     public void start(Stage stage) {
         AppCoordinator coordinator = new AppCoordinator();
-        Scene scene = new Scene(coordinator.getRoot(), 1000, 700);
+        Scene scene = new Scene(coordinator.getRoot(), 1120, 760);
         URL stylesheet = getClass().getResource("/styles.css");
         if (stylesheet != null) {
             scene.getStylesheets().add(stylesheet.toExternalForm());
         }
 
-        stage.setTitle("Career Pilot AI Lite");
-        stage.setMinWidth(800);
-        stage.setMinHeight(600);
+        stage.setTitle("Career Pilot AI");
+        stage.setMinWidth(920);
+        stage.setMinHeight(640);
         stage.setScene(scene);
         coordinator.showLogin();
         stage.show();
