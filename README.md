@@ -1,43 +1,81 @@
 # Career Pilot AI
 
-Career Pilot AI is a CSC325 capstone project developed by Team 01. The application is a full-stack desktop system designed to help students and job seekers organize the job application process. Users will be able to manage resume information, track job applications, generate tailored resume and cover letter drafts, and access interview preparation tools.
+Career Pilot AI is a CSC325 capstone project developed by Team 01. It is a full-stack Java desktop application that helps users create a resume profile, generate tailored resumes and cover letters with Gemini AI, and save generated documents for later viewing.
 
 ## Project Overview
 
-Career Pilot AI is intended to reduce the time and effort involved in applying to multiple jobs by centralizing the application workflow into one organized desktop application. The system will allow users to store resume details, enter job descriptions, track application statuses, and generate job-specific application materials.
+Career Pilot AI simplifies the process of preparing job application materials. Users can log in, maintain resume information, enter job details, generate tailored application documents, edit the generated output, and save completed documents.
 
-## Current MVP Status
+The final project prioritizes a polished and functional minimum viable product rather than a larger set of partially completed features.
 
-Implemented now:
+## Final MVP Status
+
+The following features are implemented and working:
 
 - JavaFX desktop frontend
-- Spring Boot backend
-- Firebase Cloud Firestore persistence
-- Firestore Emulator support for local development
-- Gemini AI resume and cover letter generation
-- Resume profile builder
-- Job description input
+- Spring Boot REST API backend
+- Login screen and application navigation
+- Resume profile creation and storage
+- Resume profile retrieval
+- Job description and job information input
+- Gemini AI resume generation
+- Gemini AI cover letter generation
 - Editable generated output
-- Saved generated documents
-
-Later phases:
-
-- Login/register
-- Application tracker
-- Mock interview practice
-- PDF or DOCX export
+- Generated document storage
+- Saved document retrieval and display
+- Firebase Cloud Firestore integration
+- Firestore Emulator support for local development
+- CSS-styled JavaFX interface
+- User-friendly dashboard based on the final MVP
 
 ## Core Features
 
-- User account/profile management
-- Resume profile storage
-- Job application tracker
-- Application status updates
-- Tailored resume draft generation
-- Cover letter draft generation
-- Interview question generation
-- Saved generated documents
-- JavaFX desktop user interface with CSS styling
+### Login
+
+Users enter the application through the login screen.
+
+### Resume Profile
+
+Users can create and save profile information used when generating application materials.
+
+### AI Document Generation
+
+Users can enter company information, a job title, and a job description to generate:
+
+- A tailored resume
+- A tailored cover letter
+
+Generated content can be reviewed and edited before saving.
+
+### Saved Documents
+
+Generated resumes and cover letters can be saved to Firestore and viewed from the Saved Documents screen.
+
+## Final MVP Scope
+
+The submitted MVP includes:
+
+1. Login
+2. Resume profile management
+3. Resume generation
+4. Cover letter generation
+5. Editable generated output
+6. Saved document storage
+7. Saved document retrieval
+8. Spring Boot backend integration
+9. Firestore persistence
+10. Gemini API integration
+
+The following proposed features were intentionally removed from the final MVP:
+
+- Application tracker
+- Interview preparation module
+- Dashboard analytics
+- Multiple resume versions
+- Full multi-user account support
+- PDF or DOCX export
+
+These features were excluded so the team could prioritize stability, integration, testing, and polish.
 
 ## Technology Stack
 
@@ -46,9 +84,9 @@ Later phases:
 - **Styling:** CSS
 - **Backend:** Spring Boot
 - **Database:** Firebase Cloud Firestore
-- **Local Database Option:** Firestore Emulator
+- **Local Development Database:** Firestore Emulator
 - **AI Integration:** Gemini API
-- **Build Tool:** Maven wrapper
+- **Build Tool:** Maven Wrapper
 - **Version Control:** GitHub
 
 ## Project Structure
@@ -70,137 +108,129 @@ career-pilot-ai/
 
 ## Quickstart
 
-Full setup instructions are in [docs/SETUP.md](docs/SETUP.md).
+Complete installation, environment configuration, troubleshooting, and manual startup instructions are available in:
 
-Mac:
+[docs/SETUP.md](docs/SETUP.md)
+
+### Before You Begin
+
+Install the following:
+
+- Java 21 or newer
+- Node.js and npm
+- Firebase CLI
+- Gemini API key
+
+Create a local `.env` file from the example:
 
 ```bash
-chmod +x mvnw scripts/*.sh
 cp .env.example .env
+```
+
+Add your Gemini API key:
+
+```text
+GEMINI_API_KEY=your-gemini-api-key
+```
+
+---
+
+## Running the Application
+
+Three processes must be running:
+
+1. Firestore Emulator
+2. Spring Boot Backend
+3. JavaFX Frontend
+
+### Mac
+
+Open Terminal 1:
+
+```bash
 ./scripts/run-firestore-emulator.sh
 ```
 
-Open a second terminal:
+Open Terminal 2:
 
 ```bash
 ./scripts/run-backend.sh
 ```
 
-Open a third terminal:
+Open Terminal 3:
 
 ```bash
 ./scripts/run-frontend.sh
 ```
 
-Windows PowerShell:
+### Windows PowerShell
+
+Open PowerShell 1:
 
 ```powershell
-Copy-Item .env.example .env
 .\scripts\run-firestore-emulator.ps1
 ```
 
-Open a second PowerShell window:
+Open PowerShell 2:
 
 ```powershell
 .\scripts\run-backend.ps1
 ```
 
-Open a third PowerShell window:
+Open PowerShell 3:
 
 ```powershell
 .\scripts\run-frontend.ps1
 ```
 
-Useful URLs:
+### Local URLs
 
 ```text
 Backend: http://localhost:8080
 Firestore Emulator UI: http://localhost:4000
-Firestore Emulator host: localhost:8081
+Firestore Emulator Host: localhost:8081
 ```
 
-## Required Tools
+For complete setup instructions, troubleshooting, and environment configuration, see:
 
-- Java 21 or newer
-- Node.js and npm for Firebase CLI
-- Firebase CLI for the Firestore Emulator
-- Gemini API key for AI generation
-
-Install Firebase CLI:
-
-```bash
-npm install -g firebase-tools
-```
+**docs/SETUP.md**
 
 ## Development Workflow
 
-This project will use a branch-based workflow.
+The project uses a branch-based GitHub workflow.
 
-- `main` will contain stable, final code.
-- `develop` will be used as the main integration branch.
-- Team members should create feature branches for assigned tasks.
-- Pull requests should be made into `develop`.
-- Code should be reviewed before merging.
-
-Example branch names:
-
-```text
-feature/javafx-login
-feature/application-tracker
-feature/database-models
-feature/ai-integration
-```
+- `main` contains the stable, final submission code.
+- `develop` serves as the primary integration branch.
+- Team members complete work on individual feature branches.
+- Pull requests are reviewed and merged into `develop`.
+- Fully tested code is merged from `develop` into `main` for release.
 
 ## Team Roles
 
-| Team Member     | Role                                 | Main Responsibility                                                   |
-| --------------- | ------------------------------------ | --------------------------------------------------------------------- |
-| Jillian Suarez  | Project Manager / Integration / QA   | GitHub setup, task tracking, integration, documentation, final review |
-| Sohan Pattanaik | Backend Lead                         | Spring Boot setup, backend logic, AI API integration                  |
-| Keith Parisette | Database Lead                        | Firebase/database setup, data models, persistence                     |
-| Fabian Vasquiez | Frontend Lead                        | JavaFX screens, navigation, CSS styling                               |
-| Joseph Quillo   | Application Tracker Lead             | Job application tracker module and status workflow                    |
-| Ana Garcia      | Testing / UI Support / Documentation | Testing, bug reports, UI support, documentation review                |
+| Team Member | Role | Main Responsibility |
+| --- | --- | --- |
+| Jillian Suarez | Project Manager / Integration / QA | Project coordination, GitHub administration, integration, testing, documentation, and final submission |
+| Sohan Pattanaik | Backend Lead | Spring Boot backend, Firestore integration, Gemini API integration, and setup documentation |
+| Keith Parisette | Database Support | Firestore review, data models, and persistence support |
+| Fabian Vasquiez | Frontend Lead | JavaFX screens, navigation, dashboard, and CSS styling |
+| Joseph Quillo | UI Support | Interface improvements, layout updates, and usability enhancements |
+| Ana Garcia | Testing / Documentation Support | Test checklist, bug reporting, UI support, and documentation review |
 
-## Current Sprint Goal
+## Known Limitations
 
-The first development sprint focuses on setting up the project architecture and preparing the team to begin core feature development.
-
-Sprint 1 priorities:
-
-- Create GitHub repository
-- Set up project folder structure
-- Set up JavaFX frontend project
-- Set up Spring Boot backend project
-- Design initial database schema
-- Create branch structure
-- Draft initial wireframes
-
-## MVP Goal
-
-The minimum viable product should allow a user to:
-
-1. Open the JavaFX desktop application.
-2. Create or access a user profile.
-3. Add resume information.
-4. Add and track job applications.
-5. Update application status.
-6. Enter a job description.
-7. Generate a tailored resume draft and cover letter draft.
-
-## Future / Stretch Features
-
-If time allows, the team may expand the project with:
-
-- Interview practice question history
-- Calendar reminders
-- Job board import support
-- Additional export formats
-- Enhanced dashboard analytics
+- Gemini may occasionally return a temporary `503 UNAVAILABLE` response during periods of high demand.
+- A valid Gemini API key is required for resume and cover letter generation.
+- The current MVP uses a single demo-user Firestore path for local development and demonstration.
+- Full multi-user authentication is outside the scope of the final MVP.
+- PDF and DOCX export are not included.
+- The application tracker, interview module, and dashboard analytics were deferred to future development.
 
 ## Course Information
 
-Course: CSC325 Capstone Project  
-Team: Group 01  
-Project Name: Career Pilot AI  
-Prepared by: CSC325 Team 01
+**Course:** CSC325 Capstone Project
+
+**Team:** Group 01
+
+**Project:** Career Pilot AI
+
+**Prepared by:** CSC325 Team 01
